@@ -156,7 +156,7 @@ async function getExchangeRate() {
         } else {
             throw new Error("Invalid data structure from API")
         }
-    } catch (err) { console.log("Rates is not loaded", err.message); }
+    } catch (err) { console.error("Rates is not loaded", err.message); }
 }
 
 mainBtn.onclick = addItem;
