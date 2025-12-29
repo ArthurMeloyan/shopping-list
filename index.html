@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="hy">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHOPLIST PRO</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="main-container">
+        <h1>Իմ Գնումները</h1>
+        
+        <div class="input-container">
+            <div class="field">
+                <label>Ապրանք</label>
+                <input type="text" id="name-input" placeholder="Անվանում">
+            </div>
+            <div class="field">
+                <label>Գին</label>
+                <input type="number" id="price-input" placeholder="0 դր.">
+            </div>
+            <div class="field">
+                <label>Քանակ</label>
+                <input type="number" id="qty-input" placeholder="0">
+            </div>
+            <button class="add-btn">Ավելացնել</button>
+        </div>
+
+        <div id="sort-search-container">
+            <div class="search-box">
+                <label>Որոնում</label>
+                <input type="text" placeholder="Փնտրել..." id="search-input">
+            </div>
+            <div class="sort-box">
+                <label>Սորտավորել</label>
+                <select id="sort">
+                    <option value="date">Ըստ ամսաթվի</option>
+                    <option value="name">Ըստ անվանման</option>
+                    <option value="price">Ըստ գնի</option>
+                    <option value="quantity">Ըստ քանակի</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>N</th>
+                        <th>Անվանում</th>
+                        <th>Արժեք</th>
+                        <th>Քանակ</th>
+                        <th>Ընդհանուր</th>
+                        <th>Գործողություն</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body"></tbody>
+            </table>
+        </div>
+
+        <div class="footer-summary">
+            <div class="total-label">Ընդամենը</div>
+            <div class="total-values">
+                <span id="total-sum-display">0 amd</span>
+                <span class="separator">|</span>
+                <span id="total-sum-usd">0.00 usd</span>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
