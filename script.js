@@ -1,8 +1,8 @@
-let items = JSON.parse(localStorage.getItem("shopping_list")) || [];
+const STORAGE_KEY = 'shopping_list'
+let items = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
 let editId = null;
 let usdRate = null;
 const url = 'https://open.er-api.com/v6/latest/AMD';
-
 const nameInput = document.querySelector("#name-input");
 const priceInput = document.querySelector("#price-input");
 const qtyInput = document.querySelector("#qty-input");
@@ -27,18 +27,20 @@ sortOption.addEventListener('change', (e) => {
     render();
 });
 
+// Helper functions 
 function clearInput() {
     nameInput.value = ''; priceInput.value = ''; qtyInput.value = '';
 }
 
-function render() {
-    tBody.innerHTML = '';
-    let totalAmd = 0;
+function filterItems() {
+    return items.filter(item => item.name.toLowerCase().includes(searchTerm));
+}
 
-    // 1. Filtration
-    let filtered = items.filter(item => item.name.toLowerCase().includes(searchTerm));
+function saveData() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+}
 
-    // 2. Sorting
+function sortItems(filtered) {
     if (sortOrder === 'name') {
         filtered.sort((a, b) => a.name.localeCompare(b.name));
     } else if (sortOrder === 'price') {
@@ -48,15 +50,24 @@ function render() {
     } else if (sortOrder === 'date') {
         filtered.sort((a, b) => a.id - b.id);
     }
+    return filtered;
+}
+function render() {
+    tBody.innerHTML = '';
+    let totalAmd = 0;
 
-    // 3. Render
+    // 1. Filtration & Sorting
+    const filtered = sortItems(filterItems());
+
+
+    // 2. Render
     filtered.forEach((item, index) => {
         const rowSumAmd = item.price * item.quantity;
         totalAmd += rowSumAmd;
-        
+
         const tr = document.createElement('tr');
         if (item.id === editId) tr.style.backgroundColor = '#fff9db';
-        
+
         const rowSumUsd = usdRate ? (rowSumAmd * usdRate).toFixed(2) : "0.00";
 
         tr.innerHTML = `
@@ -78,8 +89,6 @@ function render() {
     if (usdRate) {
         totalSumUsd.textContent = (totalAmd * usdRate).toFixed(2) + " usd";
     }
-
-    localStorage.setItem("shopping_list", JSON.stringify(items));
 }
 
 function addItem() {
@@ -100,6 +109,9 @@ function addItem() {
         editId = null;
         mainBtn.textContent = 'Ավելացնել';
     }
+
+    saveData();
+
     clearInput();
     render();
 }
@@ -111,6 +123,7 @@ tBody.addEventListener('click', (e) => {
     if (e.target.classList.contains('delete-btn')) {
         items = items.filter(it => it.id !== id);
         if (editId === id) { editId = null; mainBtn.textContent = "Ավելացնել"; }
+        saveData();
         render();
     }
 
@@ -125,6 +138,7 @@ tBody.addEventListener('click', (e) => {
             editId = id;
             mainBtn.textContent = 'Փոփոխել';
         }
+        saveData();
         render();
     }
 });
@@ -132,10 +146,17 @@ tBody.addEventListener('click', (e) => {
 async function getExchangeRate() {
     try {
         const res = await fetch(url);
+        if (!res.ok) {
+            throw new Error(`Server error: ${res.status}`)
+        }
         const data = await res.json();
-        usdRate = data.rates.USD;
-        render();
-    } catch (err) { console.log("Курс не загружен", err); }
+        if (data && data.rates && data.rates.USD) {
+            usdRate = data.rates.USD;
+            render()
+        } else {
+            throw new Error("Invalid data structure from API")
+        }
+    } catch (err) { console.log("Rates is not loaded", err.message); }
 }
 
 mainBtn.onclick = addItem;
